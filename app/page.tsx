@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, RotateCcw, ShieldCheck, Check, X } from "lucide-react";
@@ -22,7 +22,7 @@ type SponsorData = {
   ext_link_url: string | null;
 };
 
-export default function QuizPage() {
+function QuizContent() {
   const searchParams = useSearchParams();
   const sptdSlug = searchParams.get("sptd");
 
@@ -155,8 +155,6 @@ export default function QuizPage() {
       <header className="w-full max-w-md px-4 py-2 border-b border-zinc-200 dark:border-zinc-800 fixed top-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md z-10 flex justify-between items-center gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="font-black text-lg tracking-tighter uppercase italic leading-none">QuizMedici</h1>
-
-
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -264,15 +262,9 @@ export default function QuizPage() {
           </motion.div>
         )}
 
-
-
         {/* Schermata Finale */}
         {isFinished && (
-
-
-
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12 px-4 space-y-6">
-            
             <div className="relative inline-block">
               <ShieldCheck size={80} className="mx-auto text-green-500" />
               <div className="absolute -top-2 -right-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-bold px-2 py-1 rounded-full border-2 border-white dark:border-zinc-950">
@@ -311,5 +303,13 @@ export default function QuizPage() {
         <div ref={scrollRef} className="h-10" />
       </div>
     </main>
+  );
+}
+
+export default function QuizPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-white dark:bg-zinc-950 text-sm">Caricamento...</div>}>
+      <QuizContent />
+    </Suspense>
   );
 }
