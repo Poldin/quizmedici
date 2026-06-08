@@ -1,18 +1,36 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
+import { useSearchParams } from 'next/navigation';
 
-export default function CanvaEmulator() {
+// 1. Il componente con la logica interna che consuma i parametri URL
+function CanvaEmulatorContent() {
     const [url, setUrl] = useState('');
     const [qrDataUrl, setQrDataUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const posterRefs = useRef<(HTMLDivElement | null)[]>([]);
+    
+    // Uso dell'hook nativo di Next.js per i parametri di ricerca
+    const searchParams = useSearchParams();
 
-    const generateAndDownload = async (index: number) => {
+    useEffect(() => {
+        const sptdParam = searchParams.get('sptd');
+        
+        if (sptdParam) {
+            const autoUrl = `https://quizmedici.vercel.app/?sptd=${sptdParam}`;
+            setUrl(autoUrl);
+            
+            QRCode.toDataURL(autoUrl, { margin: 1 })
+                .then(data => setQrDataUrl(data))
+                .catch(err => console.error("Errore generazione QR automatico:", err));
+        }
+    }, [searchParams]);
+
+    const generatePdfInstance = async (index: number) => {
         const element = posterRefs.current[index];
-        if (!element) return;
+        if (!element) return null;
 
         setLoading(true);
         const canvas = await html2canvas(element, { scale: 3, useCORS: true });
@@ -20,8 +38,26 @@ export default function CanvaEmulator() {
         const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
         pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-        pdf.save(`poster_${index + 1}.pdf`);
         setLoading(false);
+        return pdf;
+    };
+
+    const generateAndDownload = async (index: number) => {
+        const pdf = await generatePdfInstance(index);
+        if (pdf) pdf.save(`poster_${index + 1}.pdf`);
+    };
+
+    const generateAndPrint = async (index: number) => {
+        const pdf = await generatePdfInstance(index);
+        if (pdf) {
+            const blobUrl = pdf.output('bloburl');
+            const printWindow = window.open(blobUrl, '_blank');
+            if (printWindow) {
+                printWindow.onload = () => {
+                    printWindow.print();
+                };
+            }
+        }
     };
 
     const createQr = async () => {
@@ -47,12 +83,11 @@ export default function CanvaEmulator() {
 
     return (
         <div className="p-8 bg-gray-200 min-h-screen font-sans">
-            {/* Import Anton Font */}
             <style dangerouslySetInnerHTML={{ __html: `@import url('https://googleapis.com');` }} />
 
             <div className="max-w-xl mx-auto mb-10 bg-white p-6 rounded shadow">
                 <input
-                    type="url" className="border p-2 w-full mb-4" placeholder="URL del Quiz..."
+                    type="url" className="border p-2 w-full mb-4 text-gray-900" placeholder="URL del Quiz..."
                     value={url} onChange={(e) => setUrl(e.target.value)}
                 />
                 <button onClick={createQr} className="bg-blue-600 text-white px-4 py-2 w-full font-bold">
@@ -63,9 +98,8 @@ export default function CanvaEmulator() {
             <div className="flex flex-col gap-20 items-center">
                 {contents.map((c, i) => (
                     <div key={i} className="flex flex-col items-center">
-                        {/* AREA POSTER (Simula A4) */}
                         <div
-                            ref={(el) => { posterRefs.current[i] = el; }} // Aggiunte le graffe {} per evitare il return
+                            ref={(el) => { posterRefs.current[i] = el; }}
                             className="bg-white shadow-2xl overflow-hidden"
                             style={{
                                 width: '210mm',
@@ -76,7 +110,6 @@ export default function CanvaEmulator() {
                                 textAlign: 'left'
                             }}
                         >
-
                             <h1 style={{ fontFamily: 'Anton, sans-serif', fontSize: '70pt', fontWeight: 'bold', color: '#333', lineHeight: '1.1', marginBottom: '10mm' }}>
                                 {c.title}
                             </h1>
@@ -94,15 +127,35 @@ export default function CanvaEmulator() {
                             </div>
                         </div>
 
-                        <button
-                            onClick={() => generateAndDownload(i)}
-                            className="mt-4 bg-black text-white px-10 py-3 rounded-full font-bold hover:scale-105 transition-transform"
-                        >
-                            SCARICA PDF {i + 1}
-                        </button>
+                        <div className="flex gap-4 mt-4">
+                            <button
+                                onClick={() => generateAndDownload(i)}
+                                disabled={loading}
+                                className="bg-black text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform disabled:opacity-50"
+                            >
+                                SCARICA PDF {i + 1}
+                            </button>
+                            
+                            <button
+                                onClick={() => generateAndPrint(i)}
+                                disabled={loading}
+                                className="bg-emerald-600 text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform disabled:opacity-50"
+                            >
+                                STAMPA PDF {i + 1}
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
         </div>
+    );
+}
+
+// 2. L'esportazione principale protetta da Suspense (Richiesto obbligatoriamente da Next.js durante il build delle pagine statiche)
+export default function CanvaEmulator() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center">Caricamento configuratore...</div>}>
+            <CanvaEmulatorContent />
+        </Suspense>
     );
 }
