@@ -169,7 +169,7 @@ export interface QuizOption {
          "D":"SBAGLIATO: La masticazione unilaterale è dannosa perché crea asimmetria e squilibrio muscolare."
       },
       "curiosita":{
-         "titolo":"Ma lo sapevi che... (Impatto Ambientale)",
+         "titolo":"🧐lo sapevi che...",
          "testo":"Le gomme comuni NON sono biodegradabili: la 'gomma base' è un mix di polimeri sintetici derivati dal petrolio (praticamente plastica!). Se gettate a terra, impiegano circa 5 anni per degradarsi in microplastiche, ma non scompaiono mai del tutto dal pianeta. Sono il secondo rifiuto più diffuso al mondo dopo i mozziconi di sigaretta.",
          "url_immagine":"assets/img/curiosita/gum-environment-impact.png",
          "tag_visual":"infografica_ambiente"

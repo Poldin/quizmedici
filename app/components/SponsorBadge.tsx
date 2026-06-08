@@ -35,9 +35,6 @@ export default function SponsorBadge({ name, logoUrl, extLinkUrl }: SponsorProps
       )}
       
       {logoUrl && (
-        /* Il contenitore ora prende tutta la larghezza disponibile (w-full) 
-          con un raggio d'azione massimo leggermente più ampio per non sgranare (max-w-[200px])
-        */
         <div className="w-full max-w-[200px] px-2 flex items-center justify-center">
           <img 
             src={logoUrl} 

@@ -109,7 +109,7 @@ function QuizContent() {
         const correctOption = currentQuiz.opzioni.find(opt => opt.corretta);
         if (correctOption) {
           const correctExplanation = currentQuiz.responso_dettagliato[correctOption.id];
-          feedbackContent += `\n\n✅ **La risposta corretta era: ${correctOption.testo}**\n${correctExplanation}`;
+          feedbackContent += `\n\n✅ la risposta corretta era: ${correctOption.testo}\n${correctExplanation}`;
         }
       }
 
@@ -130,7 +130,7 @@ function QuizContent() {
           {
             id: `c-${Date.now()}`,
             type: "curiosity",
-            content: `${currentQuiz.curiosita.titolo}\n\n${currentQuiz.curiosita.testo}`,
+            content: `${currentQuiz.curiosita.titolo}\n${currentQuiz.curiosita.testo}`,
           }
         ]);
       }, 1000);
