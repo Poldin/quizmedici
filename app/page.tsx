@@ -169,7 +169,7 @@ function QuizContent() {
               if (navigator.share) {
                 navigator.share({
                   title: 'quizMedici',
-                  text: 'Guarda questo quiz!',
+                  text: 'mettiti alla prova!',
                   url: window.location.href,
                 }).catch(console.error);
               } else {
