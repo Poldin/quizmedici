@@ -257,7 +257,7 @@ function QuizContent() {
               onClick={nextStep}
               className="flex items-center gap-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-8 py-4 rounded-full font-bold shadow-2xl active:scale-95 transition-all hover:bg-zinc-800 dark:hover:bg-zinc-200"
             >
-              Continua <ChevronRight size={20} />
+              👇 continua
             </button>
           </motion.div>
         )}
@@ -296,7 +296,7 @@ function QuizContent() {
               onClick={() => window.location.reload()}
               className="flex items-center gap-2 mx-auto text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity"
             >
-              <RotateCcw size={14} /> Ricomincia il test
+              <RotateCcw size={14} /> ricomincia il test
             </button>
           </motion.div>
         )}

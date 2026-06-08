@@ -52,7 +52,7 @@ export interface QuizOption {
          "D":"LA MENTA (L'Illusionista): Serve esclusivamente per l'esperienza sensoriale (alito fresco) e non ha proprietà terapeutiche."
       },
       "curiosita":{
-         "titolo":"Ma lo sapevi che...",
+         "titolo":"🧐lo sapevi che...",
          "testo":"Sputare il dentifricio senza risciacquare con acqua raddoppia l'efficacia del fluoro? Lasciarlo agire sulla superficie dei denti permette una protezione continua anche dopo il lavaggio.",
          "url_immagine":"assets/img/curiosita/no-rinse-technique.png",
          "tag_visual":"infografica_educativa"
@@ -91,7 +91,7 @@ export interface QuizOption {
          "D":"SBAGLIATO: La scadenza è solitamente indicata dal simbolo PAO (un barattolo aperto con un numero di mesi)."
       },
       "curiosita":{
-         "titolo":"Ma lo sapevi che...",
+         "titolo":"🧐lo sapevi che...",
          "testo":"Molti dentifrici 'sbiancanti' hanno un RDA molto alto. In realtà non cambiano il colore chimico dei denti, ma 'grattano' via le macchie esterne. Se usati troppo spesso, possono assottigliare lo smalto rivelando la dentina sottostante, che è gialla: il risultato? Denti più gialli e più sensibili!",
          "url_immagine":"assets/img/curiosita/rda-chart-abrasivity.png",
          "tag_visual":"grafico_comparativo"
@@ -130,7 +130,7 @@ export interface QuizOption {
          "D":"SBAGLIATO: Lo smalto è troppo duro per essere rovinato dalla gomma. Il problema semmai può riguardare i muscoli della mascella (ATM) se masticata per ore."
       },
       "curiosita":{
-         "titolo":"Ma lo sapevi che...",
+         "titolo":"🧐lo sapevi che...",
          "testo":"Il segreto è lo Xilitolo! Molte gomme usano questo dolcificante che i batteri della carie (Streptococcus mutans) 'mangiano' pensando sia zucchero, ma non riescono a digerirlo. Risultato? I batteri muoiono di fame e la tua bocca resta più sana. (Fonte: Journal of American Dental Association).",
          "url_immagine":"assets/img/curiosita/saliva-buffer-effect.png",
          "tag_visual":"schema_biochimico"
@@ -247,7 +247,7 @@ export interface QuizOption {
          "D":"SBAGLIATO: Al contrario! Le sostanze acide sono il nemico numero uno dello smalto; i collutori sono studiati per essere a pH neutro o basico."
       },
       "curiosita":{
-         "titolo":"L'illusione della freschezza",
+         "titolo":"L'illusione della freschezza🍋‍🟩",
          "testo":"Affidarsi solo al collutorio è come spruzzare profumo su una camicia sporca: l'odore è gradevole, ma le macchie restano. La placca è una pellicola gommosa e tenace che aderisce fisicamente al dente; senza l'azione meccanica delle setole che la 'distruggono', i batteri continuano a produrre acidi indisturbati sotto lo strato di liquido profumato.",
          "url_immagine":"assets/img/curiosita/mouthwash-vs-brush.png",
          "tag_visual":"infografica_meccanica_vs_chimica"
@@ -286,7 +286,7 @@ export interface QuizOption {
          "D":"SBAGLIATO: La qualità del filo influisce sulla resistenza, ma l'odore è un indicatore biologico della presenza di placca 'vecchia'."
       },
       "curiosita":{
-         "titolo":"Il test del 'naso' non mente",
+         "titolo":"Il test del 'naso' non mente 👃",
          "testo":"Se il filo puzza, hai appena scoperto una zona dove lo spazzolino non arriva e dove i batteri stanno banchettando da giorni. È il primo segnale di un'infiammazione gengivale o di una carie interdentale in fase iniziale. Non smettere di usarlo: l'odore sparirà solo quando avrai rimosso tutta la placca accumulata!",
          "url_immagine":"assets/img/curiosita/floss-odor-test.png",
          "tag_visual":"infografica_batteri_anaerobi"
@@ -325,7 +325,7 @@ export interface QuizOption {
          "D":"SBAGLIATO: Il collutorio non rimuove la causa del sanguinamento (la placca). Senza l'azione meccanica delle setole, l'infiammazione persisterà."
       },
       "curiosita":{
-         "titolo":"Il colore della salute",
+         "titolo":"Il colore della salute❤️‍🩹",
          "testo":"Una gengiva sana non deve mai sanguinare, né durante il lavaggio né durante l'uso del filo. Deve apparire di colore 'rosa corallo' e avere una trama simile alla buccia d'arancia. Se è rosso vivo, lucida e gonfia, hai una gengivite in corso!",
          "url_immagine":"assets/img/curiosita/healthy-vs-inflamed-gums.png",
          "tag_visual":"comparazione_gengive_rosa_vs_rosse"
@@ -364,7 +364,7 @@ export interface QuizOption {
          "D":"SBAGLIATO: Al contrario, l'abuso di sostanze chimiche aggressive può alterare temporaneamente la percezione del gusto."
       },
       "curiosita":{
-         "titolo":"L'effetto 'terra bruciata'",
+         "titolo":"L'effetto 'terra bruciata'🔥",
          "testo":"I batteri della bocca non sono inquilini abusivi, ma parte del tuo sistema immunitario. Alcuni di essi trasformano i nitrati delle verdure in ossido nitrico, fondamentale per regolare la tua pressione sanguigna. Lavare i denti serve a gestire la densità della placca, non a 'disinfettare' un ambiente che per natura deve essere vivo.",
          "url_immagine":"assets/img/curiosita/microbiome-shield.png",
          "tag_visual":"infografica_biodiversita_orale"
@@ -403,7 +403,7 @@ export interface QuizOption {
          "D":"SBAGLIATO: La plastica è fatta per resistere all'umidità, il vero rischio è biologico, non strutturale."
       },
       "curiosita":{
-         "titolo":"La regola d'oro del bagno",
+         "titolo":"La regola d'oro del bagno🚽",
          "testo":"Esiste un modo semplicissimo per salvare lo spazzolino: abbassare sempre il coperchio del WC prima di tirare l'acqua. E un altro trucco: non usare il cappuccio di plastica se lo spazzolino è ancora umido, perché crea una 'serra' perfetta per la crescita di muffe e batteri tra le setole!",
          "url_immagine":"assets/img/curiosita/toilet-aerosol-effect.png",
          "tag_visual":"schema_flusso_aria_bagno"
