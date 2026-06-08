@@ -272,15 +272,15 @@ function QuizContent() {
               </div>
             </div>
             <div className="space-y-2">
-              <h2 className="text-3xl font-black tracking-tighter">OBIETTIVO RAGGIUNTO</h2>
+              <h2 className="text-3xl font-black tracking-tighter">QUIZ COMPLETATO</h2>
               <p className="text-zinc-500 text-sm leading-relaxed">
                 Hai dimostrato di tenere alla tua salute orale. Ora hai le armi per un sorriso perfetto!
               </p>
             </div>
             
-            <div className="p-4 bg-zinc-100 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+            <div className="p-4 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
               <p className="text-xs font-bold uppercase text-zinc-400 mb-1">Cosa fare ora?</p>
-              <p className="text-sm font-medium italic">"condividi questo quiz con i tuoi amici per metterli alla prova!"</p>
+              <p className="text-sm font-medium">condividi questo quiz con i tuoi amici per metterli alla prova!</p>
             </div>
             {/* Componente Sponsor*/}
             {sponsor && (

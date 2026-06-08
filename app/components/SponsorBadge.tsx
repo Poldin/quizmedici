@@ -25,7 +25,7 @@ export default function SponsorBadge({ name, logoUrl, extLinkUrl }: SponsorProps
         <div className="flex flex-col items-center gap-0.5 m-3">
           {/* Prima riga fissa: sostenuto da */}
           <span className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500 font-bold leading-none">
-            sostenuto da
+            presentato da
           </span>
           {/* Seconda riga dinamica: Nome Clinica */}
           <span className="text-md font-bold text-zinc-800 dark:text-zinc-200 tracking-tight leading-tight">
