@@ -6,23 +6,26 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(request: Request) {
     try {
-        // 1. Controllo Orario e Giorno (Fuso Orario Italiano)
-        const oraItaliana = new Date().toLocaleString("en-US", { timeZone: "Europe/Rome" });
-        const dataStato = new Date(oraItaliana);
+        // 1. Controllo Orario e Giorno in UTC (Infallibile su server Vercel/Supabase)
+        const oraCorrente = new Date();
 
-        const giornoDellaSettimana = dataStato.getDay(); // 0 = Domenica, 1 = Lunedì...
-        const ora = dataStato.getHours();
+        const giornoDellaSettimanaUTC = oraCorrente.getUTCDay(); // 0 = Domenica, 1 = Lunedì...
+        const oraUTC = oraCorrente.getUTCHours();
 
-        // Blocca se è Domenica (0) o fuori dal range 7:00 - 19:59
-        if (giornoDellaSettimana === 0 || ora < 7 || ora >= 20) {
+        /**
+         * L'orario italiano (ora legale estiva a Giugno) è UTC+2.
+         * Di conseguenza la tua finestra Italiana (07:00 - 19:59) 
+         * si traduce esattamente nella finestra UTC (05:00 - 17:59).
+         * * Blocca se è Domenica (0 in UTC) o fuori dal range UTC 5 - 17.
+         */
+        if (giornoDellaSettimanaUTC === 0 || oraUTC < 5 || oraUTC >= 18) {
             return NextResponse.json({
                 status: 'skipped',
-                message: 'Fuori dall orario consentito (7-20) o è Domenica.'
+                message: `Fuori dall orario consentito. Orario UTC attuale: ${oraUTC}:00, Giorno UTC: ${giornoDellaSettimanaUTC} (0=Domenica).`
             });
         }
 
         // 2. Inizializzazione ISOLATA del client Admin (solo per questa API)
-        // Usiamo le variabili d'ambiente direttamente qui dentro
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -107,13 +110,13 @@ export async function GET(request: Request) {
             throw new Error(`Errore Resend: ${resendError.message}`);
         }
 
-        // 6. Aggiornamento record e metadati
+        // 6. Aggiornamento record e metadati (sanificazione del vecchio meta se non è un oggetto)
         const vecchioMeta = typeof prospect.meta === 'object' && prospect.meta !== null ? prospect.meta : {};
         const nuovoMeta = {
             ...vecchioMeta,
             first_email_sent_at: new Date().toISOString(),
             resend_message_id: resendData?.id,
-            delivery_timezone: "Europe/Rome"
+            delivery_timezone: "UTC"
         };
 
         const { error: updateError } = await supabaseAdmin
