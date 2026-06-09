@@ -49,7 +49,7 @@ export default function SponsorBadge({ name, logoUrl, extLinkUrl }: SponsorProps
             {extLinkUrl && (
                 <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500 flex items-center gap-0.5 hover:underline decoration-1">
                     visita il sito
-                    <ArrowUpRight className="w-3.5 h-3.5 opacity-80" strokeWidth={2.5} />
+                    <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
                 </span>
             )}
         </Wrapper>
