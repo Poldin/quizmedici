@@ -5,12 +5,15 @@ import { createClient } from '@supabase/supabase-js';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(request: Request) {
+    console.log("=== CRON: INIZIO FLUSSO ===");
     try {
         // 1. Controllo Orario e Giorno in UTC (Infallibile su server Vercel/Supabase)
         const oraCorrente = new Date();
 
         const giornoDellaSettimanaUTC = oraCorrente.getUTCDay(); // 0 = Domenica, 1 = Lunedì...
         const oraUTC = oraCorrente.getUTCHours();
+
+        console.log(`[CRON LOG 1] Giorno UTC: ${giornoDellaSettimanaUTC}, Ora UTC: ${oraUTC}`);
 
         /**
          * L'orario italiano (ora legale estiva a Giugno) è UTC+2.
@@ -19,6 +22,7 @@ export async function GET(request: Request) {
          * * Blocca se è Domenica (0 in UTC) o fuori dal range UTC 5 - 17.
          */
         if (giornoDellaSettimanaUTC === 0 || oraUTC < 5 || oraUTC >= 18) {
+            console.log("[CRON LOG 1.1] Condizione ORARIO attivata: SKIPPED");
             return NextResponse.json({
                 status: 'skipped',
                 message: `Fuori dall orario consentito. Orario UTC attuale: ${oraUTC}:00, Giorno UTC: ${giornoDellaSettimanaUTC} (0=Domenica).`
@@ -28,6 +32,8 @@ export async function GET(request: Request) {
         // 2. Inizializzazione ISOLATA del client Admin (solo per questa API)
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        console.log(`[CRON LOG 2] Controllo ENV - URL: ${!!supabaseUrl}, ServiceKey: ${!!supabaseServiceKey}, ResendKey: ${!!process.env.RESEND_API_KEY}`);
 
         if (!supabaseUrl || !supabaseServiceKey) {
             throw new Error("Mancano le variabili d'ambiente necessarie (NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY)");
@@ -41,6 +47,7 @@ export async function GET(request: Request) {
         });
 
         // 3. Recupera il primo prospect da elaborare
+        console.log("[CRON LOG 3] Eseguo query di selezione su quizmedici_cliniche...");
         const { data: prospect, error: fetchError } = await supabaseAdmin
             .from('quizmedici_cliniche')
             .select('*')
@@ -49,11 +56,17 @@ export async function GET(request: Request) {
             .limit(1)
             .maybeSingle(); 
 
+        if (fetchError) {
+            console.error("[CRON LOG 3.ERR] Errore fetch dal database:", fetchError);
+        }
+
         if (fetchError || !prospect) {
+            console.log(`[CRON LOG 3.1] Nessun prospect trovato o errore. Prospect: ${!!prospect}`);
             return NextResponse.json({ status: 'no-op', message: 'Nessun prospect rimasto da elaborare.' });
         }
 
         const { email, slug } = prospect;
+        console.log(`[CRON LOG 3.2] Prospect agganciato con successo. ID: ${prospect.id}, Email: ${email}, Slug: ${slug}`);
 
         // 4. Struttura HTML della Mail con firma ottimizzata
         const emailHtml = `
@@ -99,6 +112,7 @@ export async function GET(request: Request) {
     `;
 
         // 5. Invio della mail con Resend
+        console.log(`[CRON LOG 5] Chiamo Resend per inviare a: ${email}...`);
         const { data: resendData, error: resendError } = await resend.emails.send({
             from: 'Giuliana <giuliana@vetrinae.xyz>',
             to: [email],
@@ -107,10 +121,14 @@ export async function GET(request: Request) {
         });
 
         if (resendError) {
+            console.error("[CRON LOG 5.ERR] Errore durante l'invio con Resend:", resendError);
             throw new Error(`Errore Resend: ${resendError.message}`);
         }
 
+        console.log(`[CRON LOG 5.1] Resend ha risposto positivamente. ID: ${resendData?.id}`);
+
         // 6. Aggiornamento record e metadati (sanificazione del vecchio meta se non è un oggetto)
+        console.log("[CRON LOG 6] Preparazione metadati e avvio UPDATE su database...");
         const vecchioMeta = typeof prospect.meta === 'object' && prospect.meta !== null ? prospect.meta : {};
         const nuovoMeta = {
             ...vecchioMeta,
@@ -128,15 +146,18 @@ export async function GET(request: Request) {
             .eq('id', prospect.id);
 
         if (updateError) {
+            console.error("[CRON LOG 6.ERR] Errore durante l'update del database:", updateError);
             throw new Error(`Errore DB Update: ${updateError.message}`);
         }
 
+        console.log("[CRON LOG SUCCESS] Flusso terminato con successo!");
         return NextResponse.json({
             status: 'success',
             message: `Email inviata a ${email} per la clinica con slug: ${slug}`
         });
 
     } catch (error: any) {
+        console.error("[CRON LOG CRASH] Rilevato un errore nel blocco catch globale:", error.message);
         return NextResponse.json({ status: 'error', error: error.message }, { status: 500 });
     }
 }
