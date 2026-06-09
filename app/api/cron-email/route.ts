@@ -71,19 +71,19 @@ export async function GET(request: Request) {
         // 4. Struttura HTML della Mail con firma ottimizzata
         const emailHtml = `
       <div style="font-family: sans-serif; color: #333; line-height: 1.6; max-width: 600px;">
-        <p>Oltre l'83% dei pazienti amerebbe scoprire qualcosa di utile mentre aspetta in sala d'attesa.</p>
+        <p><strong>Oltre l'83% dei pazienti amerebbe scoprire qualcosa di utile mentre aspetta in sala d'attesa.</strong></p>
         <p>Ecco perché abbiamo creato <strong>QUIZMEDICI</strong>: per intrattenere ed educare i pazienti in sala d'attesa.</p>
         
         <p>Provate il quiz qui voi stessi:<br />
         <a href="https://quizmedici.vercel.app/?sptd=${slug}" style="color: #0070f3; text-decoration: underline;">https://quizmedici.vercel.app/?sptd=${slug}</a></p>
         
-        <h3 style="margin-top: 24px; color: #111;">PERCHÉ USARE QUIZMEDICI PER I PAZIENTI?</h3>
+        <h3 style="margin-top: 32px; color: #111;">PERCHÉ USARE QUIZMEDICI PER I PAZIENTI?</h3>
         <ul>
           <li>Intrattiene, educa e cura l'esperienza del paziente (anche quando voi tardate).</li>
           <li>Se poi i pazienti lo condividono con gli amici... è pubblicità gratis per voi!</li>
         </ul>
 
-        <h3 style="margin-top: 24px; color: #111;">COME SI INIZIA? QUANTO COSTA?</h3>
+        <h3 style="margin-top: 8px; color: #111;">COME SI INIZIA? QUANTO COSTA?</h3>
         <p>È <strong>GRATIS</strong></p>
         <ol>
           <li>Accedete a questo link: <a href="https://quizmedici.vercel.app/create_pdfs?sptd=${slug}" style="color: #0070f3; text-decoration: underline;">https://quizmedici.vercel.app/create_pdfs?sptd=${slug}</a></li>
