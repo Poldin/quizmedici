@@ -51,7 +51,7 @@ export async function GET(request: Request) {
         const { data: prospect, error: fetchError } = await supabaseAdmin
             .from('quizmedici_cliniche')
             .select('*')
-            .eq('first_mail_sent', false)
+            .or('first_mail_sent.is.null,first_mail_sent.eq.false')
             .neq('email', null) 
             .limit(1)
             .maybeSingle(); 
