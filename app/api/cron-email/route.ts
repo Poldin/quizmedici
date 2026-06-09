@@ -1,59 +1,59 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { createClient } from '@supabase/supabase-js'; 
+import { createClient } from '@supabase/supabase-js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(request: Request) {
-  try {
-    // 1. Controllo Orario e Giorno (Fuso Orario Italiano)
-    const oraItaliana = new Date().toLocaleString("en-US", { timeZone: "Europe/Rome" });
-    const dataStato = new Date(oraItaliana);
-    
-    const giornoDellaSettimana = dataStato.getDay(); // 0 = Domenica, 1 = Lunedì...
-    const ora = dataStato.getHours();
+    try {
+        // 1. Controllo Orario e Giorno (Fuso Orario Italiano)
+        const oraItaliana = new Date().toLocaleString("en-US", { timeZone: "Europe/Rome" });
+        const dataStato = new Date(oraItaliana);
 
-    // Blocca se è Domenica (0) o fuori dal range 7:00 - 19:59
-    if (giornoDellaSettimana === 0 || ora < 7 || ora >= 20) {
-      return NextResponse.json({ 
-        status: 'skipped', 
-        message: 'Fuori dall orario consentito (7-20) o è Domenica.' 
-      });
-    }
+        const giornoDellaSettimana = dataStato.getDay(); // 0 = Domenica, 1 = Lunedì...
+        const ora = dataStato.getHours();
 
-    // 2. Inizializzazione ISOLATA del client Admin (solo per questa API)
-    // Usiamo le variabili d'ambiente direttamente qui dentro
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        // Blocca se è Domenica (0) o fuori dal range 7:00 - 19:59
+        if (giornoDellaSettimana === 0 || ora < 7 || ora >= 20) {
+            return NextResponse.json({
+                status: 'skipped',
+                message: 'Fuori dall orario consentito (7-20) o è Domenica.'
+            });
+        }
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error("Mancano le variabili d'ambiente necessarie (NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY)");
-    }
+        // 2. Inizializzazione ISOLATA del client Admin (solo per questa API)
+        // Usiamo le variabili d'ambiente direttamente qui dentro
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    });
+        if (!supabaseUrl || !supabaseServiceKey) {
+            throw new Error("Mancano le variabili d'ambiente necessarie (NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY)");
+        }
 
-    // 3. Recupera il primo prospect da elaborare
-    const { data: prospect, error: fetchError } = await supabaseAdmin
-      .from('quizmedici_cliniche')
-      .select('*')
-      .eq('first_mail_sent', false)
-      .not('email', 'is', null)
-      .limit(1)
-      .single();
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+            auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+            },
+        });
 
-    if (fetchError || !prospect) {
-      return NextResponse.json({ status: 'no-op', message: 'Nessun prospect rimasto da elaborare.' });
-    }
+        // 3. Recupera il primo prospect da elaborare
+        const { data: prospect, error: fetchError } = await supabaseAdmin
+            .from('quizmedici_cliniche')
+            .select('*')
+            .eq('first_mail_sent', false)
+            .neq('email', null) 
+            .limit(1)
+            .maybeSingle(); 
 
-    const { email, slug } = prospect;
+        if (fetchError || !prospect) {
+            return NextResponse.json({ status: 'no-op', message: 'Nessun prospect rimasto da elaborare.' });
+        }
 
-    // 4. Struttura HTML della Mail con firma ottimizzata
-    const emailHtml = `
+        const { email, slug } = prospect;
+
+        // 4. Struttura HTML della Mail con firma ottimizzata
+        const emailHtml = `
       <div style="font-family: sans-serif; color: #333; line-height: 1.6; max-width: 600px;">
         <p>Oltre l'83% dei pazienti amerebbe scoprire qualcosa di utile mentre aspetta in sala d'attesa.</p>
         <p>Ecco perché abbiamo creato <strong>QUIZMEDICI</strong>: per intrattenere ed educare i pazienti in sala d'attesa.</p>
@@ -95,45 +95,45 @@ export async function GET(request: Request) {
       </div>
     `;
 
-    // 5. Invio della mail con Resend
-    const { data: resendData, error: resendError } = await resend.emails.send({
-      from: 'Giuliana <giuliana@vetrinae.xyz>',
-      to: [email],
-      subject: "Quanto si annoiano i pazienti in sala d'attesa?",
-      html: emailHtml,
-    });
+        // 5. Invio della mail con Resend
+        const { data: resendData, error: resendError } = await resend.emails.send({
+            from: 'Giuliana <giuliana@vetrinae.xyz>',
+            to: [email],
+            subject: "Quanto si annoiano i pazienti in sala d'attesa?",
+            html: emailHtml,
+        });
 
-    if (resendError) {
-      throw new Error(`Errore Resend: ${resendError.message}`);
+        if (resendError) {
+            throw new Error(`Errore Resend: ${resendError.message}`);
+        }
+
+        // 6. Aggiornamento record e metadati
+        const vecchioMeta = typeof prospect.meta === 'object' && prospect.meta !== null ? prospect.meta : {};
+        const nuovoMeta = {
+            ...vecchioMeta,
+            first_email_sent_at: new Date().toISOString(),
+            resend_message_id: resendData?.id,
+            delivery_timezone: "Europe/Rome"
+        };
+
+        const { error: updateError } = await supabaseAdmin
+            .from('quizmedici_cliniche')
+            .update({
+                first_mail_sent: true,
+                meta: nuovoMeta
+            })
+            .eq('id', prospect.id);
+
+        if (updateError) {
+            throw new Error(`Errore DB Update: ${updateError.message}`);
+        }
+
+        return NextResponse.json({
+            status: 'success',
+            message: `Email inviata a ${email} per la clinica con slug: ${slug}`
+        });
+
+    } catch (error: any) {
+        return NextResponse.json({ status: 'error', error: error.message }, { status: 500 });
     }
-
-    // 6. Aggiornamento record e metadati
-    const vecchioMeta = typeof prospect.meta === 'object' && prospect.meta !== null ? prospect.meta : {};
-    const nuovoMeta = {
-      ...vecchioMeta,
-      first_email_sent_at: new Date().toISOString(),
-      resend_message_id: resendData?.id,
-      delivery_timezone: "Europe/Rome"
-    };
-
-    const { error: updateError } = await supabaseAdmin
-      .from('quizmedici_cliniche')
-      .update({
-        first_mail_sent: true,
-        meta: nuovoMeta
-      })
-      .eq('id', prospect.id);
-
-    if (updateError) {
-      throw new Error(`Errore DB Update: ${updateError.message}`);
-    }
-
-    return NextResponse.json({ 
-      status: 'success', 
-      message: `Email inviata a ${email} per la clinica con slug: ${slug}` 
-    });
-
-  } catch (error: any) {
-    return NextResponse.json({ status: 'error', error: error.message }, { status: 500 });
-  }
 }
