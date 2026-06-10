@@ -8,27 +8,39 @@ type SponsorProps = {
     extLinkUrl?: string | null;
 };
 
+// Funzione helper per formattare il link
+const formatExternalLink = (url: string | null | undefined) => {
+    if (!url) return "";
+    // Se il link non inizia con http:// o https://, aggiunge https://
+    if (!/^https?:\/\//i.test(url)) {
+        return `https://${url}`;
+    }
+    return url;
+};
+
 export default function SponsorBadge({ name, logoUrl, extLinkUrl }: SponsorProps) {
     if (!name && !logoUrl) return null;
 
-    const Wrapper = extLinkUrl ? "a" : "div";
-    const wrapperProps = extLinkUrl
-        ? { href: extLinkUrl, target: "_blank", rel: "noopener noreferrer" }
+    // Formattiamo il link prima di usarlo
+    const formattedLink = formatExternalLink(extLinkUrl);
+
+    const Wrapper = formattedLink ? "a" : "div";
+    const wrapperProps = formattedLink
+        ? { href: formattedLink, target: "_blank", rel: "noopener noreferrer" }
         : {};
 
     return (
         <Wrapper
             {...wrapperProps}
-            className={`w-auto -mx-4 flex flex-col items-center justify-center text-center p-4 bg-zinc-50/60 dark:bg-zinc-900/40 rounded-xl ${extLinkUrl ? "hover:opacity-90 transition-all hover:scale-[1.01] cursor-pointer" : ""
-                }`}
+            className={`w-auto -mx-4 flex flex-col items-center justify-center text-center p-4 bg-zinc-50/60 dark:bg-zinc-900/40 rounded-xl ${
+                formattedLink ? "hover:opacity-90 transition-all hover:scale-[1.01] cursor-pointer" : ""
+            }`}
         >
             {name && (
                 <div className="flex flex-col items-center gap-0.5 m-3">
-                    {/* Prima riga fissa: sostenuto da */}
                     <span className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500 leading-none">
                         presentato da
                     </span>
-                    {/* Seconda riga dinamica: Nome Clinica */}
                     <span className="text-md font-bold text-zinc-800 dark:text-zinc-200 tracking-tight leading-tight">
                         {name}
                     </span>
@@ -45,8 +57,7 @@ export default function SponsorBadge({ name, logoUrl, extLinkUrl }: SponsorProps
                 </div>
             )}
 
-            {/* Piccola CTA visibile solo se c'è un link */}
-            {extLinkUrl && (
+            {formattedLink && (
                 <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500 flex items-center gap-0.5 hover:underline decoration-1">
                     visita il sito
                     <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
