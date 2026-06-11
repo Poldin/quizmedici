@@ -21,7 +21,7 @@ export async function GET(request: Request) {
          * si traduce esattamente nella finestra UTC (05:00 - 17:59).
          * * Blocca se è Domenica (0 in UTC) o fuori dal range UTC 5 - 17.
          */
-        if (giornoDellaSettimanaUTC === 0 || oraUTC < 5 || oraUTC >= 18) {
+        if (giornoDellaSettimanaUTC === 0 || oraUTC < 4 || oraUTC >= 20) {
             console.log("[CRON LOG 1.1] Condizione ORARIO attivata: SKIPPED");
             return NextResponse.json({
                 status: 'skipped',
