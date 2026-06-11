@@ -52,9 +52,9 @@ export async function GET(request: Request) {
             .from('quizmedici_cliniche')
             .select('*')
             .or('first_mail_sent.is.null,first_mail_sent.eq.false')
-            .neq('email', null) 
+            .neq('email', null)
             .limit(1)
-            .maybeSingle(); 
+            .maybeSingle();
 
         if (fetchError) {
             console.error("[CRON LOG 3.ERR] Errore fetch dal database:", fetchError);
@@ -70,45 +70,45 @@ export async function GET(request: Request) {
 
         // 4. Struttura HTML della Mail con firma ottimizzata
         const emailHtml = `
-      <div style="font-family: sans-serif; color: #333; line-height: 1.6; max-width: 600px;">
-        <p><strong>Oltre l'83% dei pazienti amerebbe scoprire qualcosa di utile mentre aspetta in sala d'attesa.</strong></p>
-        <p>Ecco perché abbiamo creato <strong>QUIZMEDICI</strong>: per intrattenere ed educare i pazienti in sala d'attesa.</p>
-        
-        <p>Provate il quiz qui voi stessi:<br />
-        <a href="https://quizmedici.vercel.app/?sptd=${slug}" style="color: #0070f3; text-decoration: underline;">https://quizmedici.vercel.app/?sptd=${slug}</a></p>
-        
-        <h3 style="margin-top: 32px; color: #111;">PERCHÉ USARE QUIZMEDICI PER I PAZIENTI?</h3>
-        <ul>
-          <li>Intrattiene, educa e cura l'esperienza del paziente (anche quando voi tardate).</li>
-          <li>Se poi i pazienti lo condividono con gli amici... è pubblicità gratis per voi!</li>
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.8; max-width: 600px; margin: 0 auto; padding: 20px;">
+    
+    <p>Buongiorno,</p>
+
+    <p>Le scrivo perché abbiamo sviluppato <strong>QuizMedici</strong>, un servizio digitale (gratuito) pensato per migliorare l'esperienza dei pazienti in sala d'attesa.</p>
+
+    <p>Oltre l'83% dei pazienti preferirebbe trovare contenuti utili e interattivi piuttosto che semplici riviste. QuizMedici permette loro di accedere a quiz educativi sulla salute dentale inquadrando un semplice QR Code.</p>
+
+    <div style="background-color: #f9f9f9; border-left: 4px solid #0070f3; padding: 15px; margin: 25px 0;">
+        <p style="margin: 0;"><strong>Perché introdurlo in sala d'attesa?</strong></p>
+        <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+            <li><strong>Migliora la percezione dell'attesa:</strong> riduce lo stress e il "peso" dei tempi morti.</li>
+            <li><strong>Educazione e prevenzione:</strong> il paziente arriva in poltrona più consapevole dell'importanza dei trattamenti.</li>
+            <li><strong>Visibilità:</strong> i pazienti possono condividere il risultato, portando pubblicità gratuita allo studio.</li>
         </ul>
+    </div>
 
-        <h3 style="margin-top: 8px; color: #111;">COME SI INIZIA? QUANTO COSTA?</h3>
-        <p>È <strong>GRATIS</strong></p>
-        <ol>
-          <li>Accedete a questo link: <a href="https://quizmedici.vercel.app/create_pdfs?sptd=${slug}" style="color: #0070f3; text-decoration: underline;">https://quizmedici.vercel.app/create_pdfs?sptd=${slug}</a></li>
-          <li>Stampate il PDF che vi piace di più.</li>
-          <li>Rendetelo visibile in sala d'attesa.</li>
-          <li>Comunicateci a che mail vi mandiamo le statistiche a fine mese (se vi interessano).</li>
-        </ol>
-        <p>Fine.</p>
+    <p><strong>Come attivarlo (in 60 secondi):</strong></p>
+    <ol style="margin-bottom: 25px;">
+        <li style="margin-bottom: 10px;">Visualizzi l'anteprima del quiz qui: <a href="https://quizmedici.vercel.app/?sptd=${slug}" style="color: #0070f3; font-weight: bold;">prova il Quiz</a></li>
+        <li style="margin-bottom: 10px;">Scarichi il PDF personalizzato per il Suo studio: <a href="https://quizmedici.vercel.app/create_pdfs?sptd=${slug}" style="color: #0070f3; font-weight: bold;">stampa PDF</a></li>
+        <li style="margin-bottom: 10px;">Lo stampi e lo esponga in sala d'attesa.</li>
+    </ol>
 
-        <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
-          Alla fine di ogni mese vi mandiamo i dati di utilizzo.<br />
-          Ogni mese esce un nuovo quiz: ma voi non dovete fare nulla, il QrCode non cambia.
-        </p>
+    <p>Il servizio è <strong>totalmente gratuito</strong>. Ogni mese il quiz si aggiorna automaticamente con nuovi contenuti: una volta esposto il QR Code, non dovrà più fare nulla.</p>
 
-        <hr style="border: 0; border-top: 1px solid #eee; margin-top: 30px; margin-bottom: 20px;" />
-        <div style="font-family: sans-serif;">
-          <div style="font-size: 18px; font-weight: bold; color: #111;">Giuliana Silla</div>
-          <div style="font-size: 13px; color: #555; margin-bottom: 10px;">
-            VP @ <a href="https://visitae.vercel.app/" target="_blank" rel="noopener" style="color: #0070f3; text-decoration: none;">visitae</a>
-          </div>
-          <div>
-            <img src="https://toyuzchjvhhecidpljja.supabase.co/storage/v1/object/public/pub/giuliana%20silla%20firma.png" alt="Firma Giuliana Silla" style="max-width: 250px; height: auto; display: block;" />
-          </div>
+    <p style="margin-bottom: 30px;">A fine mese Le invieremo (se lo desidera) il report con i dati di utilizzo e il gradimento dei Suoi pazienti.</p>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+
+    <div style="margin-top: 20px;">
+        <div style="font-size: 18px; font-weight: bold; color: #111;">Giuliana Silla</div>
+        <div style="font-size: 13px; color: #555; margin-bottom: 10px;">
+            VP @ <a href="https://quizmedici.vercel.app/" target="_blank" rel="noopener" style="color: #0070f3; text-decoration: none;">quizmedici</a>
         </div>
-      </div>
+        <img src="https://toyuzchjvhhecidpljja.supabase.co/storage/v1/object/public/pub/giuliana%20silla%20firma.png" alt="Firma Giuliana Silla" style="max-width: 200px; height: auto; display: block;" />
+    </div>
+</div>
+
     `;
 
         // 5. Invio della mail con Resend
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
         const { data: resendData, error: resendError } = await resend.emails.send({
             from: 'Giuliana <giuliana@vetrinae.xyz>',
             to: [email],
-            subject: "Quanto si annoiano i pazienti in sala d'attesa?",
+            subject: "Materiale per la sala d’attesa",
             html: emailHtml,
         });
 
