@@ -68,6 +68,53 @@ export async function GET(request: Request) {
         const { email, slug } = prospect;
         console.log(`[CRON LOG 3.2] Prospect agganciato con successo. ID: ${prospect.id}, Email: ${email}, Slug: ${slug}`);
 
+        // === CONTROLLO E GESTIONE DUPLICATI ===
+        console.log(`[CRON LOG 3.3] Controllo se esistono altri record già inviati per l'email: ${email}`);
+        const { data: duplicatoInviato, error: duplicateError } = await supabaseAdmin
+            .from('quizmedici_cliniche')
+            .select('id')
+            .eq('email', email)
+            .eq('first_mail_sent', true)
+            .limit(1)
+            .maybeSingle();
+
+        if (duplicateError) {
+            console.error("[CRON LOG 3.4.ERR] Errore controllo duplicati:", duplicateError);
+        }
+
+        // Se esiste un altro record con la stessa mail che ha già "first_mail_sent: true"
+        if (duplicatoInviato) {
+            console.log(`[CRON LOG 3.5] Rilevato duplicato già inviato (ID già inviato: ${duplicatoInviato.id}). Disinnesco il record attuale.`);
+            
+            const vecchioMeta = typeof prospect.meta === 'object' && prospect.meta !== null ? prospect.meta : {};
+            const nuovoMetaDuplicato = {
+                ...vecchioMeta,
+                skipped_reason: "Duplicato di un'email già inviata in precedenza",
+                skipped_at: new Date().toISOString(),
+                duplicate_of_id: duplicatoInviato.id
+            };
+
+            // Marchiamo il record corrente come TRUE per toglierlo dalla coda permanente
+            const { error: updateDuplicateError } = await supabaseAdmin
+                .from('quizmedici_cliniche')
+                .update({
+                    first_mail_sent: true,
+                    meta: nuovoMetaDuplicato
+                })
+                .eq('id', prospect.id);
+
+            if (updateDuplicateError) {
+                console.error("[CRON LOG 3.6.ERR] Errore durante l'annullamento del duplicato:", updateDuplicateError);
+            }
+
+            // Chiudiamo l'esecuzione. Al prossimo giro di CRON questo record non esisterà più per la query iniziale.
+            return NextResponse.json({ 
+                status: 'skipped-duplicate', 
+                message: `Record ${prospect.id} saltato e marcato come inviato perché l'email ${email} era già presente nel record ${duplicatoInviato.id}.` 
+            });
+        }
+        // ======================================
+
         // 4. Struttura HTML della Mail con firma ottimizzata
         const emailHtml = `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.8; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -108,7 +155,6 @@ export async function GET(request: Request) {
         <img src="https://toyuzchjvhhecidpljja.supabase.co/storage/v1/object/public/pub/giuliana%20silla%20firma.png" alt="Firma Giuliana Silla" style="max-width: 200px; height: auto; display: block;" />
     </div>
 </div>
-
     `;
 
         // 5. Invio della mail con Resend
